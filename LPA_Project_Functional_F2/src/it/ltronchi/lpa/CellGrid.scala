@@ -26,7 +26,7 @@ class CellGrid(override val rows:Int, override val columns:Int, val previousWorl
 	preferredSize = new Dimension(columns*20, rows*20)
 	
 	def this(rows:Int, columns:Int) = this(rows, columns,
-			Array.tabulate[Boolean](30, 45)((x, y)=>false), true)
+			Array.tabulate[Boolean](Main.possibleWorldDimension(Main.currentWorld)(0),Main.possibleWorldDimension(Main.currentWorld)(1))((x, y)=>false), true)
 	
 	def cells = _cells
 	

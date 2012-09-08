@@ -40,21 +40,15 @@ object Main extends SimpleSwingApplication {
 			Set(Array(8,6),Array(9,6),Array(7,7),Array(8,7),Array(8,8)),
 			Set[Array[Int]]()
 	)
-	val storedConfigurationMapDim = Array("Big", "Big", "Small", "Small", "Big")
 	val confComboBox = new ComboBox(Seq("Gosper Glider Gun", "Ships", "Ten", "Pentonimo", "Empty"))
 	
-
-	val worldDimCombo = new ComboBox(Seq("Big", "Medium", "Small"))
-	val possibleWorldDimension = Array(Array(30,45),Array(20,30),Array(15,20))
-	var currentWorld = 0
-
-	var previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
+	var previousWorld = Array.tabulate[Boolean](30,45)((x, y)=>false)
 	
 	var _speedCoeff = 1.0
 	val sleepTime = 1.0//secondi
 	
 
-	var grid = new CellGrid(possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))
+	var grid = new CellGrid(30,45)
 
 	val pane = new ScrollPane(grid)
 	
@@ -81,7 +75,6 @@ object Main extends SimpleSwingApplication {
 				listenTo(saveConf)
 				listenTo(playButton)
 				listenTo(speedSlider)
-				listenTo(worldDimCombo.selection)
 				
 				reactions += {
 				case ButtonClicked(`nextButton`) =>{next}
@@ -89,10 +82,8 @@ object Main extends SimpleSwingApplication {
 				case ButtonClicked(`saveConf`) =>{AutomaticEsecutor ! "a";saveConfiguration}
 				case ButtonClicked(`playButton`) =>{AutomaticEsecutor ! "p"}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
-				case SelectionChanged(`worldDimCombo`) =>{AutomaticEsecutor ! "a";changeMapDimension}
 				}
 	
-				contents += worldDimCombo
 				contents += saveConf
 				contents += confComboBox
 				contents += loadConf
@@ -111,47 +102,22 @@ object Main extends SimpleSwingApplication {
 		grid.contents foreach (element => element match {
 		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.isAlive()
 		})
-
 	}
 	
 	def next() = {
-		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, false)
+		grid = new CellGrid(30, 45, previousWorld, false)
 		saveWorld
 		pane.contents = grid
 	}
 	
 	def loadConfiguration() = {
 		
-		worldDimCombo.selection.item = storedConfigurationMapDim(confComboBox.selection.index);
-		changeMapDimension();
-		
-		
 		val selectedConf = storedConfiguration(confComboBox.selection.index)
 		
-		selectedConf.foreach(item => previousWorld(item(1))(item(0)) = true)
-		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, true)
-		pane.contents = grid
+		previousWorld = Array.tabulate[Boolean](30, 45)((x, y)=>false)
 		
-	}
-	
-	def changeMapDimension() {
-		worldDimCombo.selection.item match {
-		case "Big" => {
-			currentWorld = 0
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
-			grid = new CellGrid(possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))
-		}
-		case "Medium" => {
-			currentWorld = 1
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))((x, y)=>false)
-			grid = new CellGrid(possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))
-		}
-		case "Small" => {
-			currentWorld = 2
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))((x, y)=>false)
-			grid = new CellGrid(possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))
-		}
-		}
+		selectedConf.foreach(item => previousWorld(item(1))(item(0)) = true)
+		grid = new CellGrid(30, 45, previousWorld, true)
 		pane.contents = grid
 		
 	}
@@ -159,24 +125,13 @@ object Main extends SimpleSwingApplication {
 	def changeCellStatus(x:Int, y:Int, previousStatus:Boolean) = {
 		saveWorld()
 		previousWorld(y)(x) = !previousStatus
-		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, true)
+		grid = new CellGrid(30, 45, previousWorld, true)
 		pane.contents = grid
 	}
 	
 	def saveConfiguration() = {
 //		grid.cells.foreach(i => if (i.isAlive()) print("Array(" + i.x + ","+ i.y + ")" + ","))
 //		println
-
-//		grid.contents(0) match {
-//		case t:MyCell => println("is alive => " + t.isAlive()) 
-//		}
-//		grid.contents(1349) match {
-//		case t:MyCell => println("is alive => " + t.isAlive()) 
-//		}
-//		grid.contents(44) match {
-//		case t:MyCell => println("is alive => " + t.isAlive()) 
-//		}
-		
 	}
 
 	def speedCoef_= (value:Int) = _speedCoeff = value

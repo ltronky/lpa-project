@@ -57,26 +57,19 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel {
 	}
 	
 	def updateState(previousWorld: Array[Array[Boolean]]) {
-		val neighbors = getNeighbors()
-		var aliveNeighborsCounter = 0;
-		
-		neighbors foreach(item => if (previousWorld(item(1))(item(0))) aliveNeighborsCounter += 1 )
-//		if (living) println(aliveNeighborsCounter)
-		if (living && aliveNeighborsCounter < 2) setAlive(false)
-		if (living && aliveNeighborsCounter > 3) setAlive(false)
-		if (!living && aliveNeighborsCounter == 3) setAlive(true) 
-	}
-	
-	def getNeighbors() :Set[Array[Int]] = {
-		
-		var neighbors = Set.empty[Array[Int]]
+		var neighbors =  Set.empty[Array[Int]]
 		for (i <- -1 to 1) {
 			for (j <- -1 to 1) {
 				if (!(i==0 && j==0))
 					neighbors += Array((x + MyCell.worldX + i) % MyCell.worldX, (y + MyCell.worldY + j) % MyCell.worldY)
 			}
-		}		
-		return neighbors
-	}
+		}
+		var aliveNeighborsCounter = 0;
 		
+		neighbors foreach(item => if (previousWorld(item(1))(item(0))) aliveNeighborsCounter += 1 )
+		if (living && aliveNeighborsCounter < 2) setAlive(false)
+		if (living && aliveNeighborsCounter > 3) setAlive(false)
+		if (!living && aliveNeighborsCounter == 3) setAlive(true) 
+	}
+	
 }

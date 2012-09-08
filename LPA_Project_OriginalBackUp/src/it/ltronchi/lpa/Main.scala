@@ -126,12 +126,6 @@ object Main extends SimpleSwingApplication {
 		worldDimCombo.selection.item = storedConfigurationMapDim(confComboBox.selection.index)
 		changeMapDimension()
 
-//		confComboBox.selection.item match {
-//		case "Gosper Glider Gun" => {
-//			selectedConf = storedConfiguration(0)
-//		}
-//			case _ => selectedConf = Set()
-//		}
 		
 		selectedConf = storedConfiguration(confComboBox.selection.index)
 		
