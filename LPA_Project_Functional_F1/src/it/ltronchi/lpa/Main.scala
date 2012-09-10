@@ -93,7 +93,7 @@ object Main extends SimpleSwingApplication {
 	
 	def saveWorld() = {
 		grid.contents foreach (element => element match {
-		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.isAlive()
+		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.living
 		})
 	}
 	

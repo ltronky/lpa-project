@@ -31,10 +31,6 @@ class MyCell(val x:Int, val y:Int, val living:Boolean) extends FlowPanel {
 		case e: MouseClicked =>{Main.changeCellStatus(x, y, living)}
 	}
 	
-	def isAlive():Boolean = {
-		living
-	}
-	
 	def this(x:Int, y:Int, previousWorld:Array[Array[Boolean]], init:Boolean) = this(x,y,{
 		if (init) previousWorld(y)(x) else {
 			val aliveNeighborsCounter = 

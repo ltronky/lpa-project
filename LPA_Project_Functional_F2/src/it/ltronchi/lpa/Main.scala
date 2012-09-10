@@ -109,7 +109,7 @@ object Main extends SimpleSwingApplication {
 	
 	def saveWorld() = {
 		grid.contents foreach (element => element match {
-		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.isAlive()
+		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.living
 		})
 
 	}
@@ -137,7 +137,7 @@ object Main extends SimpleSwingApplication {
 		
 		val selectedConf = storedConfiguration(confComboBox.selection.index)
 		
-		selectedConf.foreach(item => previousWorld(item(1))(item(0)) = true)
+		selectedConf.foreach(item => previousWorld(item(1))(item(0)) = 1)
 		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, true)
 		pane.contents = grid
 		
@@ -147,17 +147,17 @@ object Main extends SimpleSwingApplication {
 		worldDimCombo.selection.item match {
 		case "Big" => {
 			currentWorld = 0
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))
 		}
 		case "Medium" => {
 			currentWorld = 1
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))
 		}
 		case "Small" => {
 			currentWorld = 2
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))
 		}
 		}
@@ -165,9 +165,14 @@ object Main extends SimpleSwingApplication {
 		
 	}
 	
-	def changeCellStatus(x:Int, y:Int, previousStatus:Boolean) = {
+	def changeCellStatus(x:Int, y:Int, previousStatus:Int) = {
 		saveWorld()
-		previousWorld(y)(x) = !previousStatus
+		previousWorld(y)(x) = previousStatus match {
+		case 0 => 1
+		case 1|2 => 3
+		case 3|4|5 => 6
+		case _ => 0
+		}
 		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, true)
 		pane.contents = grid
 	}

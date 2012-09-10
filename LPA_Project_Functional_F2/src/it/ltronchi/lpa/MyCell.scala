@@ -17,41 +17,97 @@ object MyCell {
 }
 
 
-class MyCell(val x:Int, val y:Int, val living:Boolean) extends FlowPanel {
+class MyCell(val x:Int, val y:Int, val living:Int) extends FlowPanel {
 
 	size = new Dimension(10,10)
 	contents += new Label("")
 	border = LineBorder.createGrayLineBorder
-		
 	
-	background = {if (living) Color.BLACK else Color.WHITE}
+	background = {
+		living match {
+		case 0 => Color.WHITE
+		case 1|2 => Color.GREEN
+		case 3|4|5 => Color.RED
+		case _ => Color.BLACK
+		}
+	}
+
 	
 	listenTo(mouse.clicks) 
 	reactions += {
 		case e: MouseClicked =>{Main.changeCellStatus(x, y, living)}
 	}
 	
-	def isAlive():Boolean = {
-		living
-	}
-	
-	def this(x:Int, y:Int, previousWorld:Array[Array[Boolean]], init:Boolean) = this(x,y,{
+	def this(x:Int, y:Int, previousWorld:Array[Array[Int]], init:Boolean) = this(x,y,{
 		if (init) previousWorld(y)(x) else {
-			val aliveNeighborsCounter = 
-					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX)) 1 else 0) +
-					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX)) 1 else 0);
+			val youngNeighborsCounter = 
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 2) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 1 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 2) 1 else 0);
+			
+			val adultNeighborsCounter = 
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 5) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 3 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 4 ||
+					    previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) == 5) 1 else 0);
 
+			val oldNeighborsCounter = 
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX - 1) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 0) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY - 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 0) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) >= 6) 1 else 0) +
+					(if (previousWorld((y + MyCell.worldY + 1) % MyCell.worldY)((x + MyCell.worldX + 1) % MyCell.worldX) >= 6) 1 else 0);
 
-			if (previousWorld(y)(x) && aliveNeighborsCounter < 2) false
-			else if (previousWorld(y)(x) && aliveNeighborsCounter > 3) false
-			else if (!previousWorld(y)(x) && aliveNeighborsCounter == 3) true
-			else previousWorld(y)(x)}
+			val totalLivingNeighbors = youngNeighborsCounter + adultNeighborsCounter + oldNeighborsCounter;
+
+			
+			previousWorld(y)(x) match {
+			case 0 => if (totalLivingNeighbors == 3 && oldNeighborsCounter <= 1) previousWorld(y)(x) +1 else 0
+			case 1|2|3|4|5 => if (totalLivingNeighbors < 2 || totalLivingNeighbors > 3) 0 else previousWorld(y)(x) + 1
+			case _ => if (totalLivingNeighbors != 3) 0 else previousWorld(y)(x) +1
+			}
+			
+//			if (previousWorld(y)(x) && aliveNeighborsCounter < 2) false
+//			else if (previousWorld(y)(x) && aliveNeighborsCounter > 3) false
+//			else if (!previousWorld(y)(x) && aliveNeighborsCounter == 3) true
+//			else previousWorld(y)(x) +1}
+		}
 	})
 
 }
