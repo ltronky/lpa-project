@@ -20,7 +20,7 @@ class CellGrid(override val rows:Int, override val columns:Int) extends GridPane
 	enabled = false
 	preferredSize = new Dimension(columns*20, rows*20)
 
-	def updateAll(previousWorld: Array[Array[Boolean]]) {
+	def updateAll(previousWorld: Array[Array[Int]]) {
 		contents foreach (element => element match {
 		case cell: MyCell => cell.updateState(previousWorld)
 		})

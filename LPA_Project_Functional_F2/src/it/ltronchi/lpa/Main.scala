@@ -48,7 +48,7 @@ object Main extends SimpleSwingApplication {
 	val possibleWorldDimension = Array(Array(30,45),Array(20,30),Array(15,20))
 	var currentWorld = 0
 
-	var previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
+	var previousWorld = Array.tabulate[Int](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y) => 0)
 	
 	var _speedCoeff = 1.0
 	val sleepTime = 1.0//secondi
@@ -117,7 +117,17 @@ object Main extends SimpleSwingApplication {
 	def next() = {
 		grid = new CellGrid(possibleWorldDimension(currentWorld)(0), possibleWorldDimension(currentWorld)(1), previousWorld, false)
 		saveWorld
+		if (deepCheck(previousWorld, previousWorld.length - 1) == 0) {AutomaticEsecutor ! "a"; println("fine")}
 		pane.contents = grid
+	}
+	
+	def deepCheck(matrix:Any, idx:Int):Int = {
+		matrix match {
+		case value:Array[Int] =>	if (idx == 0) value(idx)
+										else value(idx) + deepCheck(value, idx -1)
+		case value:Array[Array[Int]] =>	if (idx == 0) deepCheck(value(idx), value(idx).length -1)
+											else deepCheck(value(idx), value(idx).length -1) + deepCheck(value, idx -1)
+		}
 	}
 	
 	def loadConfiguration() = {

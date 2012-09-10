@@ -108,6 +108,9 @@ object Main extends SimpleSwingApplication {
 	
 	def next() = {
 		saveWorld
+		var total = false;
+		previousWorld.foreach(_.foreach(total ||= _))
+		if (total == false) AutomaticEsecutor ! "a"
 		grid.updateAll(previousWorld)
 	}
 	

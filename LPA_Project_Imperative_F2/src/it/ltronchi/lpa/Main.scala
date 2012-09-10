@@ -47,7 +47,7 @@ object Main extends SimpleSwingApplication {
 	val worldDimCombo = new ComboBox(Seq("Big", "Medium", "Small"))
 	val possibleWorldDimension = Array(Array(30,45),Array(20,30),Array(15,20))
 
-	var previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
+	var previousWorld = Array.tabulate[Int](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y) => 0)
 	
 	var _speedCoeff = 1.0
 	val sleepTime = 1.0//secondi
@@ -108,13 +108,15 @@ object Main extends SimpleSwingApplication {
 	
 	def saveWorld() = {
 		grid.contents foreach (element => element match {
-		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.isAlive()
+		case cell: MyCell => previousWorld(cell.y)(cell.x) = cell.living
 		})
-
 	}
 	
 	def next() = {
 		saveWorld
+		var total = 0;
+		previousWorld.foreach(_.foreach(total += _))
+		if (total == 0) AutomaticEsecutor ! "a"
 		grid.updateAll(previousWorld)
 	}
 	
@@ -128,14 +130,14 @@ object Main extends SimpleSwingApplication {
 			if ({var found = false;
 					selectedConf.foreach(item => 
 						item match{
-							case Array(elem.x,elem.y)=> found = true;
+							case Array(elem.x,elem.y) => found = true;
 							case _ =>
 							}
 						);
 					found})
-				elem.setAlive(true)
+				elem.living = 1
 			else
-				elem.setAlive(false)
+				elem.living = 0
 			)
 		
 	}
@@ -143,15 +145,15 @@ object Main extends SimpleSwingApplication {
 	def changeMapDimension() {
 		worldDimCombo.selection.item match {
 		case "Big" => {
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))
 		}
 		case "Medium" => {
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(1)(0),possibleWorldDimension(1)(1))
 		}
 		case "Small" => {
-			previousWorld = Array.tabulate[Boolean](possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))((x, y)=>false)
+			previousWorld = Array.tabulate[Int](possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))((x, y) => 0)
 			grid = new CellGrid(possibleWorldDimension(2)(0),possibleWorldDimension(2)(1))
 		}
 		}

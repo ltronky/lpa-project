@@ -2,25 +2,18 @@ package it.ltronchi.lpa
 
 
 import scala.collection.mutable.Set
-import scala.swing.SimpleSwingApplication
-import scala.swing.MainFrame
-import scala.swing.BorderPanel
-import BorderPanel.Position._
-import scala.swing.Button
-import java.awt.Dimension
-import java.awt.Color
-import scala.swing.ScrollPane
-import scala.swing.FlowPanel
-import scala.swing.Component
-import scala.collection.mutable.ArrayBuffer
+import scala.swing.BorderPanel.Position.Center
+import scala.swing.BorderPanel.Position.South
 import scala.swing.event.ButtonClicked
-import scala.swing.ComboBox
-import scala.swing.Slider
 import scala.swing.event.ValueChanged
-import scala.swing.Label
+import scala.swing.BorderPanel
+import scala.swing.Button
 import scala.swing.ComboBox
-import scala.swing.event.SelectionChanged
-import scala.swing.event.SelectionChanged
+import scala.swing.FlowPanel
+import scala.swing.MainFrame
+import scala.swing.ScrollPane
+import scala.swing.SimpleSwingApplication
+import scala.swing.Slider
 
 object Main extends SimpleSwingApplication {
 	
@@ -107,7 +100,17 @@ object Main extends SimpleSwingApplication {
 	def next() = {
 		grid = new CellGrid(30, 45, previousWorld, false)
 		saveWorld
+		if (!deepCheck(previousWorld, previousWorld.length - 1)) AutomaticEsecutor ! "a"
 		pane.contents = grid
+	}
+	
+	def deepCheck(matrix:Any, idx:Int):Boolean = {
+		matrix match {
+		case value:Array[Boolean] =>	if (idx == 0) value(idx)
+										else value(idx) || deepCheck(value, idx -1)
+		case value:Array[Array[Boolean]] =>	if (idx == 0) deepCheck(value(idx), value(idx).length -1)
+											else deepCheck(value(idx), value(idx).length -1) || deepCheck(value, idx -1)
+		}
 	}
 	
 	def loadConfiguration() = {
