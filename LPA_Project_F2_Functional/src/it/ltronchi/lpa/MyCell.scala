@@ -19,7 +19,6 @@ object MyCell {
 
 class MyCell(val x:Int, val y:Int, val living:Int) extends FlowPanel {
 
-	size = new Dimension(10,10)
 	contents += new Label("")
 	border = LineBorder.createGrayLineBorder
 	

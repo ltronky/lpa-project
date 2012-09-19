@@ -21,7 +21,8 @@ object MyCell {
 class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	
 	
-	size = new Dimension(10,10)
+	//size = new Dimension(10,10)
+	
 	contents += new Label("")
 	
 	border = LineBorder.createGrayLineBorder
