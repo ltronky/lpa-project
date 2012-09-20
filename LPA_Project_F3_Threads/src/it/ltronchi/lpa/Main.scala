@@ -22,12 +22,11 @@ import scala.swing.ComboBox
 import scala.swing.event.SelectionChanged
 import scala.swing.event.SelectionChanged
 import scala.actors.scheduler.ThreadPoolConfig
+import scala.actors._
+import scala.actors.Actor._
 
 object Main extends SimpleSwingApplication {
 	
-	System.setProperty("actors.maxPoolSize","2000")
-//	println(System.getProperty("actors.maxPoolSize"))
-
 	val storedConfiguration = Array(
 			Set(Array(24,2),Array(25,2),Array(24,3),Array(26,3),Array(12,4),Array(25,4),Array(26,4),Array(27,4),Array(9,5),
 					Array(10,5),Array(11,5),Array(12,5),Array(16,5),Array(17,5),Array(26,5),Array(27,5),Array(28,5),Array(35,5),Array(36,5),
@@ -51,7 +50,6 @@ object Main extends SimpleSwingApplication {
 	
 
 	var grid = new CellGrid(30, 45)
-
 	var pane = new ScrollPane(grid)
 	
 	def top = new MainFrame {
@@ -62,7 +60,6 @@ object Main extends SimpleSwingApplication {
 			layout(pane) = Center;
 			
 			val controlPanel = new FlowPanel {
-				val saveConf = new Button("Save Cfg")
 				val loadConf = new Button("Load")
 				val nextButton = new Button("Next")
 				val playButton = new Button("Play/Pause")
@@ -71,22 +68,18 @@ object Main extends SimpleSwingApplication {
 				speedSlider.max = 10
 				speedSlider.value = 5
 				
-
 				listenTo(nextButton)
 				listenTo(loadConf)
-				listenTo(saveConf)
 				listenTo(playButton)
 				listenTo(speedSlider)
 				
 				reactions += {
-				case ButtonClicked(`nextButton`) =>{next}
+				case ButtonClicked(`nextButton`) =>{grid.next}
 				case ButtonClicked(`loadConf`) =>{runController("Alt");loadConfiguration}
-				case ButtonClicked(`saveConf`) =>{runController("Alt");saveConfiguration}
 				case ButtonClicked(`playButton`) =>{runController("Play/Pause")}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
 				}
 	
-				contents += saveConf
 				contents += confComboBox
 				contents += loadConf
 				contents += nextButton
@@ -97,10 +90,8 @@ object Main extends SimpleSwingApplication {
 			layout(controlPanel) = South;
 			grid.contents.foreach(_ match {
 			case value:MyCell => new Thread(value).start()
-			})
-			
+			})	
 		}
-		
 	}
 	
 	
@@ -108,13 +99,6 @@ object Main extends SimpleSwingApplication {
 		grid.contents.foreach(_ match {
 		case value:MyCell => value.executing = message;
 		})
-	}
-	
-	def next() = {
-		grid.next()
-//		var total = false;
-//		previousWorld.foreach(_.foreach(total ||= _))
-//		if (total == false) AutomaticEsecutor ! "a"
 	}
 	
 	def loadConfiguration() = {
@@ -135,12 +119,20 @@ object Main extends SimpleSwingApplication {
 				elem.living = false
 			)
 	}
-	
-	def saveConfiguration() = {
-//		grid.cells.foreach(i => if (i.isAlive()) print("Array(" + i.x + ","+ i.y + ")" + ","))
-//		println
-	}
 
 	def speedCoef_= (value:Int) = _speedCoeff = value
 	def speedCoef = _speedCoeff
+	
+	var runtime = Runtime.getRuntime
+	actor{
+		loop{
+			receiveWithin(2000){
+			case TIMEOUT =>{
+				println("Memoria della JVM occupata ~ "+((runtime.totalMemory-runtime.freeMemory)/(1024L*1024L))+"/"+
+				    (runtime.maxMemory/(1024L*1024L))+" MB" + "\t"+
+				    "Numero di Thread attivi ~ " + Thread.activeCount())
+			}
+			}
+		}
+	}.start
 }

@@ -42,7 +42,6 @@ object Main extends SimpleSwingApplication {
 	
 
 	var grid = new CellGrid(30,45)
-
 	val pane = new ScrollPane(grid)
 	
 	def top = new MainFrame {
@@ -53,7 +52,6 @@ object Main extends SimpleSwingApplication {
 			layout(pane) = Center;
 			
 			val controlPanel = new FlowPanel {
-				val saveConf = new Button("Save Cfg")
 				val loadConf = new Button("Load")
 				val nextButton = new Button("Next")
 				val playButton = new Button("Play/Pause")
@@ -65,19 +63,16 @@ object Main extends SimpleSwingApplication {
 
 				listenTo(nextButton)
 				listenTo(loadConf)
-				listenTo(saveConf)
 				listenTo(playButton)
 				listenTo(speedSlider)
 				
 				reactions += {
 				case ButtonClicked(`nextButton`) =>{next}
 				case ButtonClicked(`loadConf`) =>{AutomaticEsecutor ! "a";loadConfiguration}
-				case ButtonClicked(`saveConf`) =>{AutomaticEsecutor ! "a";saveConfiguration}
 				case ButtonClicked(`playButton`) =>{AutomaticEsecutor ! "p"}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
 				}
 	
-				contents += saveConf
 				contents += confComboBox
 				contents += loadConf
 				contents += nextButton
@@ -130,11 +125,6 @@ object Main extends SimpleSwingApplication {
 		previousWorld(y)(x) = !previousStatus
 		grid = new CellGrid(30, 45, previousWorld, true)
 		pane.contents = grid
-	}
-	
-	def saveConfiguration() = {
-//		grid.cells.foreach(i => if (i.isAlive()) print("Array(" + i.x + ","+ i.y + ")" + ","))
-//		println
 	}
 
 	def speedCoef_= (value:Int) = _speedCoeff = value

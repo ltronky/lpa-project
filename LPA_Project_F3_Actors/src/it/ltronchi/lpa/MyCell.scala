@@ -21,7 +21,6 @@ object MyCell {
 
 class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	
-	
 	contents += new Label("")
 	
 	border = LineBorder.createGrayLineBorder
@@ -33,13 +32,13 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	var _livingNeibors = 0
 	
 	def livingNeibors = _livingNeibors
-	def livingNeibors_= (liv:Int) = _livingNeibors = {updateContent(liv);liv} 
+	def livingNeibors_= (liv:Int) = _livingNeibors = liv 
 
 	def initi() {
 		for (i <- -1 to 1) {
 			for (j <- -1 to 1) {
 				if (!(i==0 && j==0)){
-					var cmp = Main.grid.contents(((x + MyCell.worldX + i) % MyCell.worldX) +( (y + MyCell.worldY + j) % MyCell.worldY)*MyCell.worldX) match { case cell:MyCell => cell}
+					var cmp = Main.grid.contents(((x + MyCell.worldX + i) % MyCell.worldX) +((y + MyCell.worldY + j) % MyCell.worldY)*MyCell.worldX) match { case cell:MyCell => cell}
 					neighbors += cmp
 				}
 			}
@@ -54,12 +53,10 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 		} else {
 			background = Color.WHITE
 		}
-		updateContent(livingNeibors)
 		alive
 	}
 	
 	def reloadLiving() = livingNeibors = neighbors.filter(_.living == true).size
-	def updateContent(liv:Int) = {contents(0) match {case l:Label => l.text=liv.toString; if(living) l.foreground = Color.WHITE else l.foreground = Color.BLACK}}
 
 		
 	listenTo(mouse.clicks) 
@@ -101,7 +98,7 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 				case "a" => esecuting = false
 				case "dead" => livingNeibors-=1
 				case "alive" => livingNeibors+=1
-				case _=>// println(c.toString)
+				case _=>
 			}
 			
 			try {

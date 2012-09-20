@@ -101,11 +101,6 @@ class MyCell(val x:Int, val y:Int, val living:Int) extends FlowPanel {
 			case 1|2|3|4|5 => if (totalLivingNeighbors < 2 || totalLivingNeighbors > 3) 0 else previousWorld(y)(x) + 1
 			case _ => if (totalLivingNeighbors != 3) 0 else previousWorld(y)(x) +1
 			}
-			
-//			if (previousWorld(y)(x) && aliveNeighborsCounter < 2) false
-//			else if (previousWorld(y)(x) && aliveNeighborsCounter > 3) false
-//			else if (!previousWorld(y)(x) && aliveNeighborsCounter == 3) true
-//			else previousWorld(y)(x) +1}
 		}
 	})
 

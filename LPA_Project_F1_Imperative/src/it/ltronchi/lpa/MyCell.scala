@@ -18,41 +18,32 @@ object MyCell {
 
 
 class MyCell(val x:Int, val y:Int) extends FlowPanel {
-	
-	
+		
 	contents += new Label("")
-	
 	border = LineBorder.createGrayLineBorder
 	
-	var living = false
+	var _living = false
 	background = Color.WHITE
 	
 	listenTo(mouse.clicks) 
 	reactions += {
 		case e: MouseClicked =>{
-			if (living) {
-				living = false
-				background = Color.WHITE
-			}
-			else {
-				living = true 
-				background = Color.BLACK
+			living match {
+			case true =>living = false;background = Color.WHITE
+			case _=>living = true;background = Color.BLACK
 			}
 			repaint()
 		}
 	}
 	
-	def isAlive():Boolean = {
-		living
-	}
-	
-	def setAlive(alive:Boolean) {
-		living = alive
-		if (alive == true) {
+	def living = _living
+	def living_= (alive:Boolean) = _living = {
+		if (alive) {
 			background = Color.BLACK
 		} else {
 			background = Color.WHITE
-		}	
+		}
+		alive
 	}
 	
 	def updateState(previousWorld: Array[Array[Boolean]]) {
@@ -66,9 +57,9 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel {
 		var aliveNeighborsCounter = 0;
 		
 		neighbors foreach(item => if (previousWorld(item(1))(item(0))) aliveNeighborsCounter += 1 )
-		if (living && aliveNeighborsCounter < 2) setAlive(false)
-		if (living && aliveNeighborsCounter > 3) setAlive(false)
-		if (!living && aliveNeighborsCounter == 3) setAlive(true) 
+		if (living && aliveNeighborsCounter < 2) living = false
+		if (living && aliveNeighborsCounter > 3) living = false
+		if (!living && aliveNeighborsCounter == 3) living = true 
 	}
 	
 }

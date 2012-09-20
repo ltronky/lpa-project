@@ -1,6 +1,5 @@
 package it.ltronchi.lpa
 
-
 import scala.collection.mutable.Set
 import scala.swing.SimpleSwingApplication
 import scala.swing.MainFrame
@@ -22,14 +21,13 @@ import scala.swing.ComboBox
 import scala.swing.event.SelectionChanged
 import scala.swing.event.SelectionChanged
 import scala.actors.scheduler.ThreadPoolConfig
+import scala.actors._
+import scala.actors.Actor._
 
 object Main extends SimpleSwingApplication {
 	
-	System.setProperty("actors.maxPoolSize","2000")
+	System.setProperty("actors.maxPoolSize","2000")//default 256
 	System.setProperty("actors.corePoolSize","500")
-//	println(System.getProperty("actors.maxPoolSize"))
-//	println("value " + System.getProperty("actors.corePoolSize"))
-//	println(System.getProperty("actors.maxPoolSize"))
 
 	val storedConfiguration = Array(
 			Set(Array(24,2),Array(25,2),Array(24,3),Array(26,3),Array(12,4),Array(25,4),Array(26,4),Array(27,4),Array(9,5),
@@ -52,13 +50,8 @@ object Main extends SimpleSwingApplication {
 	var _speedCoeff = 1.0
 	val sleepTime = 1.0//secondi
 	
-
 	var grid = new CellGrid(30, 45)
-
 	var pane = new ScrollPane(grid)
-	
-	
-	//grid.contents.foreach(_ match {case c:MyCell =>println("" + c.x + " " +c.y)})
 	
 	def top = new MainFrame {
 			
@@ -68,7 +61,6 @@ object Main extends SimpleSwingApplication {
 			layout(pane) = Center;
 			
 			val controlPanel = new FlowPanel {
-				val saveConf = new Button("Save Cfg")
 				val loadConf = new Button("Load")
 				val nextButton = new Button("Next")
 				val playButton = new Button("Play/Pause")
@@ -77,22 +69,18 @@ object Main extends SimpleSwingApplication {
 				speedSlider.max = 10
 				speedSlider.value = 5
 				
-
 				listenTo(nextButton)
 				listenTo(loadConf)
-				listenTo(saveConf)
 				listenTo(playButton)
 				listenTo(speedSlider)
 				
 				reactions += {
 				case ButtonClicked(`nextButton`) =>{grid.next()}
 				case ButtonClicked(`loadConf`) =>{runController("a");loadConfiguration}
-				case ButtonClicked(`saveConf`) =>{runController("a");saveConfiguration}
 				case ButtonClicked(`playButton`) =>{runController("p")}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
 				}
 	
-				//contents += saveConf
 				contents += confComboBox
 				contents += loadConf
 				contents += nextButton
@@ -104,9 +92,7 @@ object Main extends SimpleSwingApplication {
 			grid.contents.foreach(_ match {
 			case value:MyCell => value.initi();value.start()
 			})
-			
 		}
-		
 	}
 	
 	
@@ -138,12 +124,20 @@ object Main extends SimpleSwingApplication {
 		case value:MyCell => value.reloadLiving
 		})
 	}
-	
-	def saveConfiguration() = {
-//		grid.cells.foreach(i => if (i.isAlive()) print("Array(" + i.x + ","+ i.y + ")" + ","))
-//		println
-	}
 
 	def speedCoef_= (value:Int) = _speedCoeff = value
 	def speedCoef = _speedCoeff
+	
+	var runtime = Runtime.getRuntime
+	actor{
+		loop{
+			receiveWithin(2000){
+			case TIMEOUT =>{
+				println("Memoria della JVM occupata ~ "+((runtime.totalMemory-runtime.freeMemory)/(1024L*1024L))+"/"+
+				    (runtime.maxMemory/(1024L*1024L))+" MB" + "\t"+
+				    "Numero di Thread attivi ~ " + Thread.activeCount())
+			}
+			}
+		}
+	}.start
 }

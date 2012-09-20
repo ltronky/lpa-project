@@ -52,9 +52,7 @@ object Main extends SimpleSwingApplication {
 	var _speedCoeff = 1.0
 	val sleepTime = 1.0//secondi
 	
-
 	var grid = new CellGrid(possibleWorldDimension(0)(0),possibleWorldDimension(0)(1))
-
 	var pane = new ScrollPane(grid)
 	
 	def top = new MainFrame {
@@ -65,7 +63,6 @@ object Main extends SimpleSwingApplication {
 			layout(pane) = Center;
 			
 			val controlPanel = new FlowPanel {
-				val saveConf = new Button("Save Cfg")
 				val loadConf = new Button("Load")
 				val nextButton = new Button("Next")
 				val playButton = new Button("Play/Pause")
@@ -77,7 +74,6 @@ object Main extends SimpleSwingApplication {
 
 				listenTo(nextButton)
 				listenTo(loadConf)
-				listenTo(saveConf)
 				listenTo(playButton)
 				listenTo(speedSlider)
 				listenTo(worldDimCombo.selection)
@@ -85,14 +81,12 @@ object Main extends SimpleSwingApplication {
 				reactions += {
 				case ButtonClicked(`nextButton`) =>{next}
 				case ButtonClicked(`loadConf`) =>{AutomaticEsecutor ! "a";loadConfiguration}
-				case ButtonClicked(`saveConf`) =>{AutomaticEsecutor ! "a";saveConfiguration}
 				case ButtonClicked(`playButton`) =>{AutomaticEsecutor ! "p"}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
 				case SelectionChanged(`worldDimCombo`) =>{AutomaticEsecutor ! "a";changeMapDimension}
 				}
 	
 				contents += worldDimCombo
-				contents += saveConf
 				contents += confComboBox
 				contents += loadConf
 				contents += nextButton
@@ -139,7 +133,6 @@ object Main extends SimpleSwingApplication {
 			else
 				elem.living = 0
 			)
-		
 	}
 	
 	def changeMapDimension() {
@@ -159,11 +152,6 @@ object Main extends SimpleSwingApplication {
 		}
 		pane.contents = grid
 		
-	}
-	
-	def saveConfiguration() = {
-//		grid.cells.foreach(i => if (i.isAlive()) print("Array(" + i.x + ","+ i.y + ")" + ","))
-//		println
 	}
 
 	def speedCoef_= (value:Int) = _speedCoeff = value

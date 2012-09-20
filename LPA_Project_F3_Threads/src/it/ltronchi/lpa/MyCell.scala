@@ -27,11 +27,11 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Runnable {
 
 	border = LineBorder.createGrayLineBorder
 
-			var _living = false
-			background = Color.WHITE
+	var _living = false
+	background = Color.WHITE
 
 
-			var neighbors =  Set.empty[Array[Int]];
+	var neighbors =  Set.empty[Array[Int]];
 	for (i <- -1 to 1) {
 		for (j <- -1 to 1) {
 			if (!(i==0 && j==0))
@@ -44,18 +44,17 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Runnable {
 	case e: MouseClicked =>{
 		if (living) {
 			living = false
-					background = Color.WHITE
+			background = Color.WHITE
 		}
 		else {
 			living = true 
-					background = Color.BLACK
+			background = Color.BLACK
 		}
 		repaint()
 	}
 	}
 
 	def living = lock.synchronized {_living}
-
 	def living_= (alive:Boolean) = _living = lock.synchronized{
 		if (alive == true) {
 			background = Color.BLACK
@@ -68,10 +67,8 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Runnable {
 	def next() {
 		var aliveNeighborsCounter = 0;
 		neighbors foreach(item => if (Main.grid.contents(item(1)*MyCell.worldX + item(0)) match {
-		case value:MyCell =>  {
-			value.living
-		}
-		})aliveNeighborsCounter += 1 )
+		case value:MyCell => value.living
+		}) aliveNeighborsCounter += 1 )
 
 
 		if (living && aliveNeighborsCounter < 2) living = false
@@ -87,20 +84,15 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Runnable {
 	  case "Play/Pause" => if (_executing) false else true
 	  }}
 	
+	
 	def run() = {
-//		println("started" + (y*MyCell.worldY + x))
 		while(true) {
-		  
-		Thread.sleep((Main.sleepTime*1000/Main.speedCoef).toLong)
-
-		  if (executing)
 			try {
-				next()
-//				println(y*MyCell.worldY + x)
+				if (executing) next()
+				Thread.sleep((Main.sleepTime*1000/Main.speedCoef).toLong)
 			} catch {
 			case ie: InterruptedException => 
 			}
-
 		}
 	}
 

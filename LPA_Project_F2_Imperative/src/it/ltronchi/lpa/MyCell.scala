@@ -16,14 +16,6 @@ object MyCell {
 	var worldY = 0;
 }
 
-// 0 -> bianco -> morta
-// 1 -> verde -> giovane
-// 2 -> verde -> giovane
-// 3 -> rossa -> adulta
-// 4 -> rossa -> adulta
-// 5 -> rossa -> adulta
-// 6+ -> nera -> vecchia
-
 class MyCell(val x:Int, val y:Int) extends FlowPanel {
 	
 	
@@ -37,18 +29,11 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel {
 	listenTo(mouse.clicks) 
 	reactions += {
 		case e: MouseClicked =>{
-			if (background == Color.WHITE) {
-				living = 1
-				background = Color.GREEN
-			} else if (background == Color.GREEN) {
-				living = 3
-				background = Color.RED
-			} else if (background == Color.RED) {
-				living = 6
-				background = Color.BLACK
-			} else {
-				living = 0
-				background = Color.WHITE
+			background match {
+			case Color.WHITE => {living = 1;background = Color.GREEN}
+			case Color.GREEN => {living = 3;background = Color.RED}
+			case Color.RED => {living = 6;background = Color.BLACK}
+			case _=>  {living = 0;background = Color.WHITE}
 			}
 			repaint()
 		}
@@ -58,14 +43,11 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel {
 	
 	def living_= (alive:Int) = {
 		_living = alive
-		if (alive == 0) {
-			background = Color.WHITE
-		} else if (alive == 1 || alive == 2){
-			background = Color.GREEN
-		} else if (alive == 3 || alive == 4 || alive == 5){
-			background = Color.RED
-		} else {
-		  background = Color.BLACK
+		alive match {
+		  case 0 => background = Color.WHITE
+		  case 1|2 => background = Color.GREEN
+		  case 3|4|5 => background = Color.RED
+		  case _ => background = Color.BLACK
 		}
 	}
 	
@@ -93,15 +75,12 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel {
 		val totalLivingNeighbors = youngNeighborsCounter + adultNeighborsCounter + oldNeighborsCounter
 		
 		living match {
-		case 0 => {
-			if (totalLivingNeighbors == 3 && oldNeighborsCounter <= 1)
-				living = 1
-		}
-		case 1 | 2 | 3 | 4 | 5 => {
+		case 0 => if (totalLivingNeighbors == 3 && oldNeighborsCounter <= 1) living = 1
+		case 1|2|3|4|5 => {
 			if (totalLivingNeighbors < 2 || totalLivingNeighbors > 3) living = 0
 			else living += 1
 		}
-		case _ => {
+		case _=> {
 			if (totalLivingNeighbors != 3) living = 0
 			else living += 1
 		}
