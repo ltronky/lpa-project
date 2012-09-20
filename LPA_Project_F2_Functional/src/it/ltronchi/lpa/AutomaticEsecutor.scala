@@ -6,7 +6,7 @@ object AutomaticEsecutor extends Actor {
 	
 	def act() = {
 		esecuting = false
-		while(true) {
+		loop {
 			
 			receiveWithin(10) {
 				case "p" => {if (esecuting) esecuting = false else esecuting = true}

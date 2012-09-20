@@ -11,6 +11,7 @@ import scala.swing.event.MouseClicked
 import java.awt.Font
 import scala.collection.Set
 import scala.actors.Actor
+import scala.actors.TIMEOUT
 
 object MyCell {
 	var worldX = 0;
@@ -21,8 +22,6 @@ object MyCell {
 class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	
 	
-	//size = new Dimension(10,10)
-	
 	contents += new Label("")
 	
 	border = LineBorder.createGrayLineBorder
@@ -30,14 +29,24 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	var _living = false
 	background = Color.WHITE
 	
+	var neighbors = Set.empty[MyCell];
+	var _livingNeibors = 0
 	
-	var neighbors =  Set.empty[Array[Int]];
-	for (i <- -1 to 1) {
-		for (j <- -1 to 1) {
-			if (!(i==0 && j==0))
-				neighbors += Array((x + MyCell.worldX + i) % MyCell.worldX, (y + MyCell.worldY + j) % MyCell.worldY)
+	def livingNeibors = _livingNeibors
+	def livingNeibors_= (liv:Int) = _livingNeibors = {updateContent(liv);liv} 
+
+	def initi() {
+		for (i <- -1 to 1) {
+			for (j <- -1 to 1) {
+				if (!(i==0 && j==0)){
+					var cmp = Main.grid.contents(((x + MyCell.worldX + i) % MyCell.worldX) +( (y + MyCell.worldY + j) % MyCell.worldY)*MyCell.worldX) match { case cell:MyCell => cell}
+					neighbors += cmp
+				}
+			}
 		}
 	}
+	
+	def updateContent(liv:Int) = {contents(0) match {case l:Label => l.text=liv.toString; if(living) l.foreground = Color.WHITE else l.foreground = Color.BLACK}}
 	
 	listenTo(mouse.clicks) 
 	reactions += {
@@ -61,46 +70,42 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 			background = Color.BLACK
 		} else {
 			background = Color.WHITE
-		}	
+		}
+		updateContent(livingNeibors)
 		alive
 	}
 	
+	def reloadLiving() = livingNeibors = neighbors.filter(_.living == true).size
+	
 	def next() {
-		var aliveNeighborsCounter = 0;
-		neighbors foreach(item => if (Main.grid.contents(item(1)*MyCell.worldX + item(0)) match {
-		case value:MyCell =>  {
-			value ! "getLiving"
-			react {
-			  case response:Boolean => response
-			  case s:Any => println(s);true
-			}
+		if (living && livingNeibors < 2) {
+			living = false
+			neighbors.foreach(c => c ! "dead")
 		}
-		})aliveNeighborsCounter += 1 )
-		
-		
-		if (living && aliveNeighborsCounter < 2) living = false
-		if (living && aliveNeighborsCounter > 3) living = false
-		if (!living && aliveNeighborsCounter == 3) living = true 
+		if (living && livingNeibors > 3) {
+			living = false
+			neighbors.foreach(c => c ! "dead")
+		}
+		if (!living && livingNeibors == 3) {
+			living = true
+			neighbors.foreach(c => c ! "alive")
+		}
 	}
 	
 	
-	var esecuting = true	
+	var esecuting = false	
 	def act() = {
-		esecuting = false
-//				println("started" + (y*MyCell.worldY + x))
-		while(true) {
-			
-			receiveWithin(10) {
+		loop {	
+			reactWithin(10) {
 				case "p" => {if (esecuting) esecuting = false else esecuting = true}
 				case "a" => esecuting = false
-				case "getLiving" => sender ! living
-				case _ =>
+				case "dead" => livingNeibors-=1
+				case "alive" => livingNeibors+=1
+				case _=>// println(c.toString)
 			}
 			
-			if (esecuting)
 			try {
-				next()
-//				println(y*MyCell.worldY + x)
+				if (esecuting) next()
 				Thread.sleep((Main.sleepTime*1000/Main.speedCoef).toLong)
 			} catch {
 				case ie: InterruptedException => 

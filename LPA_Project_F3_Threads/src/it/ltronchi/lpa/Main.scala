@@ -26,9 +26,6 @@ import scala.actors.scheduler.ThreadPoolConfig
 object Main extends SimpleSwingApplication {
 	
 	System.setProperty("actors.maxPoolSize","2000")
-	System.setProperty("actors.corePoolSize","500")
-//	println(System.getProperty("actors.maxPoolSize"))
-//	println("value " + System.getProperty("actors.corePoolSize"))
 //	println(System.getProperty("actors.maxPoolSize"))
 
 	val storedConfiguration = Array(
@@ -57,9 +54,6 @@ object Main extends SimpleSwingApplication {
 
 	var pane = new ScrollPane(grid)
 	
-	
-	//grid.contents.foreach(_ match {case c:MyCell =>println("" + c.x + " " +c.y)})
-	
 	def top = new MainFrame {
 			
 		contents = new BorderPanel {
@@ -85,14 +79,14 @@ object Main extends SimpleSwingApplication {
 				listenTo(speedSlider)
 				
 				reactions += {
-				case ButtonClicked(`nextButton`) =>{grid.next()}
-				case ButtonClicked(`loadConf`) =>{runController("a");loadConfiguration}
-				case ButtonClicked(`saveConf`) =>{runController("a");saveConfiguration}
-				case ButtonClicked(`playButton`) =>{runController("p")}
+				case ButtonClicked(`nextButton`) =>{next}
+				case ButtonClicked(`loadConf`) =>{runController("Alt");loadConfiguration}
+				case ButtonClicked(`saveConf`) =>{runController("Alt");saveConfiguration}
+				case ButtonClicked(`playButton`) =>{runController("Play/Pause")}
 				case ValueChanged(`speedSlider`) =>{speedCoef = speedSlider.value}
 				}
 	
-				//contents += saveConf
+				contents += saveConf
 				contents += confComboBox
 				contents += loadConf
 				contents += nextButton
@@ -102,7 +96,7 @@ object Main extends SimpleSwingApplication {
 			
 			layout(controlPanel) = South;
 			grid.contents.foreach(_ match {
-			case value:MyCell => value.initi();value.start()
+			case value:MyCell => new Thread(value).start()
 			})
 			
 		}
@@ -112,8 +106,15 @@ object Main extends SimpleSwingApplication {
 	
 	def runController(message:String) = {
 		grid.contents.foreach(_ match {
-		case value:MyCell => value ! message;
+		case value:MyCell => value.executing = message;
 		})
+	}
+	
+	def next() = {
+		grid.next()
+//		var total = false;
+//		previousWorld.foreach(_.foreach(total ||= _))
+//		if (total == false) AutomaticEsecutor ! "a"
 	}
 	
 	def loadConfiguration() = {
@@ -132,11 +133,7 @@ object Main extends SimpleSwingApplication {
 				elem.living = true
 			else
 				elem.living = false
-		)
-		
-		grid.contents.foreach(_ match {
-		case value:MyCell => value.reloadLiving
-		})
+			)
 	}
 	
 	def saveConfiguration() = {
