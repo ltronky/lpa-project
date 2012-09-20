@@ -46,8 +46,22 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 		}
 	}
 	
-	def updateContent(liv:Int) = {contents(0) match {case l:Label => l.text=liv.toString; if(living) l.foreground = Color.WHITE else l.foreground = Color.BLACK}}
+	def living = _living
 	
+	def living_= (alive:Boolean) = _living = {
+		if (alive == true) {
+			background = Color.BLACK
+		} else {
+			background = Color.WHITE
+		}
+		updateContent(livingNeibors)
+		alive
+	}
+	
+	def reloadLiving() = livingNeibors = neighbors.filter(_.living == true).size
+	def updateContent(liv:Int) = {contents(0) match {case l:Label => l.text=liv.toString; if(living) l.foreground = Color.WHITE else l.foreground = Color.BLACK}}
+
+		
 	listenTo(mouse.clicks) 
 	reactions += {
 		case e: MouseClicked =>{
@@ -62,20 +76,6 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 			repaint()
 		}
 	}
-	
-	def living = _living
-	
-	def living_= (alive:Boolean) = _living = {
-		if (alive == true) {
-			background = Color.BLACK
-		} else {
-			background = Color.WHITE
-		}
-		updateContent(livingNeibors)
-		alive
-	}
-	
-	def reloadLiving() = livingNeibors = neighbors.filter(_.living == true).size
 	
 	def next() {
 		if (living && livingNeibors < 2) {
@@ -96,7 +96,7 @@ class MyCell(val x:Int, val y:Int) extends FlowPanel with Actor {
 	var esecuting = false	
 	def act() = {
 		loop {	
-			reactWithin(10) {
+			receiveWithin(10) {
 				case "p" => {if (esecuting) esecuting = false else esecuting = true}
 				case "a" => esecuting = false
 				case "dead" => livingNeibors-=1
